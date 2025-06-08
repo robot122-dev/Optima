@@ -1,0 +1,118 @@
+@import "../../styles/variables";
+
+.header {
+  background-color: $white;
+  box-shadow: $shadow-sm;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  &__container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 4rem;
+    padding: 0 $container-padding;
+  }
+
+  &__logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $primary;
+    text-decoration: none;
+    transition: $transition-base;
+
+    &:hover {
+      color: darken($primary, 10%);
+    }
+  }
+
+  &__nav {
+    display: none;
+
+    @media (min-width: $breakpoint-md) {
+      display: flex;
+      gap: $spacing-unit * 3;
+    }
+
+    &-link {
+      color: $text;
+      text-decoration: none;
+      font-weight: 500;
+      transition: $transition-base;
+
+      &:hover {
+        color: $primary;
+      }
+
+      &--active {
+        color: $primary;
+      }
+    }
+  }
+
+  &__contacts {
+    display: none;
+
+    @media (min-width: $breakpoint-md) {
+      display: flex;
+      align-items: center;
+      gap: $spacing-unit * 2;
+    }
+
+    &-phone {
+      color: $primary;
+      font-weight: 600;
+      text-decoration: none;
+      transition: $transition-base;
+
+      &:hover {
+        color: darken($primary, 10%);
+      }
+    }
+
+    &-button {
+      background-color: $primary;
+      color: $white;
+      padding: $spacing-unit $spacing-unit * 2;
+      border-radius: $border-radius-md;
+      font-weight: 500;
+      transition: $transition-base;
+
+      &:hover {
+        background-color: darken($primary, 10%);
+      }
+    }
+  }
+
+  &__mobile-menu {
+    display: block;
+
+    @media (min-width: $breakpoint-md) {
+      display: none;
+    }
+
+    &-button {
+      color: $text;
+      padding: $spacing-unit;
+      transition: $transition-base;
+
+      &:hover {
+        color: $primary;
+      }
+    }
+
+    &-content {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: $white;
+      padding: $spacing-unit * 2;
+      box-shadow: $shadow-md;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-unit * 2;
+    }
+  }
+}

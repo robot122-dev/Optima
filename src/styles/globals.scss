@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Inter", system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Montserrat", system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-6 py-3 rounded-lg font-semibold transition-all duration-200;
+
+    &-primary {
+      @apply bg-primary text-white hover:bg-primary/90;
+    }
+
+    &-secondary {
+      @apply bg-white text-primary border-2 border-primary hover:bg-primary hover:text-white;
+    }
+  }
+
+  .test-class {
+    @apply bg-red-500 text-white p-4 rounded-lg;
+  }
+}
+
+.test-class-without-tailwind {
+  background-color: blue;
+  color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
