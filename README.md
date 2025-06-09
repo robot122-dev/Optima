@@ -125,7 +125,7 @@ src/
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/your-username/internet-provider.git
+git clone https://github.com/your-username/Optima.git
 ```
 
 2. Установите зависимости:
@@ -135,7 +135,7 @@ npm install
 
 3. Запустите проект:
 ```bash
-npm run dev
+npm run start
 ```
 
 4. Для продакшн сборки:
