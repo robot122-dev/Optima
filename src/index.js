@@ -5,6 +5,7 @@ import "./styles/globals.scss";
 import App from "./App.js";
 import { HelmetProvider } from "react-helmet-async";
 import reportWebVitals from "./reportWebVitals.js";
+
 const container = document.getElementById("root");
 const root = createRoot(container);
 

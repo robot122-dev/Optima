@@ -1,15 +1,10 @@
-import React, { Suspense } from "react";
+import React from "react";
 import Hero from "../../components/home/Hero/Hero";
 import QuickForm from "../../components/home/QuickForm/QuickForm";
 import CoverageMap from "../../components/home/CoverageMap/CoverageMap";
 import SeoHead from "../../components/general/SeoHead/SeoHead";
-
-const LazyPopularTariffs = React.lazy(
-  () => import("../../components/home/PopularTariffs/PopularTariffs")
-);
-const LazyFeatures = React.lazy(
-  () => import("../../components/home/Features/Features")
-);
+import PopularTariffs from "../../components/home/PopularTariffs/PopularTariffs";
+import Features from "../../components/home/Features/Features";
 
 function Home() {
   return (
@@ -19,12 +14,8 @@ function Home() {
         description="Быстрый и надежный интернет для дома и бизнеса"
       />
       <Hero />
-      <Suspense fallback={<div>Загрузка...</div>}>
-        <LazyPopularTariffs />
-      </Suspense>
-      <Suspense fallback={<div>Загрузка...</div>}>
-        <LazyFeatures />
-      </Suspense>
+      <PopularTariffs />
+      <Features />
       <QuickForm />
       <CoverageMap />
     </>
