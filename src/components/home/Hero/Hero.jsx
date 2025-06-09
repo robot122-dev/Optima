@@ -20,11 +20,16 @@ const Hero = () => {
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
-            <h1 className="font-heading text-h1 font-bold mb-6 tracking-tight">
-              Высокоскоростной интернет{" "}
-              <span className="text-blue-400">Оптима</span> в Нижнем Новгороде
+            <h1 className="font-heading text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 tracking-tight leading-tight">
+              <span className="block">Высокоскоростной</span>
+              <span className="block">интернет{" "}
+                <span className="text-blue-400">Оптима</span>
+              </span>
+              <span className="block text-lg sm:text-xl lg:text-2xl mt-2 font-normal text-blue-100">
+                в Нижнем Новгороде
+              </span>
             </h1>
             <p className="text-body text-blue-100 mb-8">
               До 1 Гбит/с для дома и бизнеса. Подключение за 24 часа.

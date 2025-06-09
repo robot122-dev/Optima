@@ -83,10 +83,8 @@ function Support() {
       </section>
 
       <div className="container mx-auto px-4 py-12 max-w-6xl">
-        <div
-          id="contacts"
-          className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12"
-        >
+        {/* Контакты и форма обратной связи */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Контакты */}
           <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl p-8 border border-gray-100">
             <h2 className="font-heading text-h2 font-bold mb-10 text-gray-900 tracking-tight">
@@ -207,7 +205,7 @@ function Support() {
           </div>
 
           {/* Форма обратной связи */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+          <div id='feedback' className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl p-8 border border-gray-100">
             <h2 className="font-heading text-h2 font-bold mb-10 text-gray-900 tracking-tight">
               Обратная связь
             </h2>
@@ -226,7 +224,7 @@ function Support() {
         </div>
 
         {/* Инструкции по настройке */}
-        <div id="setup" className="mb-12">
+        <div id="setup-guides" className="mb-12">
           <h2 className="font-heading text-h2 font-bold mb-10 text-gray-900 tracking-tight">
             Инструкции по настройке
           </h2>

@@ -13,6 +13,7 @@ const navigation = [
 const Header = React.forwardRef((props, ref) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const headerRef = React.useRef(null);
 
   // Обработка скролла для изменения стиля header'а
   useEffect(() => {
@@ -122,15 +123,25 @@ const Header = React.forwardRef((props, ref) => {
           </div>
         </div>
 
+        {/* Затемнение фона при открытом меню */}
+        {mobileMenuOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
         {/* Мобильное меню */}
         <div
           id="mobile-menu"
-          className={`md:hidden fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out ${
+          className={`md:hidden fixed inset-x-0 top-[var(--header-height)] bottom-0 bg-white/95 backdrop-blur-sm z-50 transform transition-transform duration-300 ease-in-out ${
             mobileMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
+          style={{ "--header-height": `${headerRef.current?.offsetHeight || 0}px` }}
         >
-          <div className="flex flex-col h-full">
-            <div className="flex justify-between items-center p-4 border-b">
+          <div className="flex flex-col h-[calc(100vh-var(--header-height))] bg-white shadow-lg">
+            <div className="flex-shrink-0 flex justify-between items-center p-4 border-b bg-white">
               <Link
                 to="/"
                 className="flex items-center space-x-2"
@@ -150,7 +161,7 @@ const Header = React.forwardRef((props, ref) => {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
+            <nav className="flex-1 overflow-y-auto overscroll-contain bg-white">
               <div className="px-4 py-6 space-y-1">
                 {navigation.map((item) => (
                   <Link
@@ -170,7 +181,7 @@ const Header = React.forwardRef((props, ref) => {
                   Подключить
                 </Link>
               </div>
-            </div>
+            </nav>
           </div>
         </div>
       </nav>

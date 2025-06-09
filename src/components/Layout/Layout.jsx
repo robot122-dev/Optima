@@ -2,10 +2,14 @@ import React, { useRef, useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
+import { useScrollToTop } from "../../hooks/useScrollToTop";
 
 const Layout = () => {
   const headerRef = useRef(null);
   const [headerHeight, setHeaderHeight] = useState(0);
+
+  // Используем хук для скролла вверх при смене страницы
+  useScrollToTop();
 
   useEffect(() => {
     const updateHeaderHeight = () => {

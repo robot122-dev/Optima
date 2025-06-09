@@ -152,6 +152,14 @@ const Footer = () => {
                 <Link
                   to="/support#faq"
                   className="text-body text-gray-400 hover:text-white transition-all duration-300 flex items-center group"
+                  onClick={() => {
+                    setTimeout(() => {
+                      const element = document.getElementById('faq');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }, 100);
+                  }}
                 >
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   Часто задаваемые вопросы
@@ -159,8 +167,16 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/support#instructions"
+                  to="/support#setup-guides"
                   className="text-body text-gray-400 hover:text-white transition-all duration-300 flex items-center group"
+                  onClick={() => {
+                    setTimeout(() => {
+                      const element = document.getElementById('setup-guides');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }, 100);
+                  }}
                 >
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   Инструкции по настройке
@@ -168,8 +184,16 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/support#status"
+                  to="/support#maintenance"
                   className="text-body text-gray-400 hover:text-white transition-all duration-300 flex items-center group"
+                  onClick={() => {
+                    setTimeout(() => {
+                      const element = document.getElementById('maintenance');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }, 100);
+                  }}
                 >
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   Статус работ
@@ -179,18 +203,17 @@ const Footer = () => {
                 <Link
                   to="/support#feedback"
                   className="text-body text-gray-400 hover:text-white transition-all duration-300 flex items-center group"
+                  onClick={() => {
+                    setTimeout(() => {
+                      const element = document.getElementById('feedback');
+                      if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                      }
+                    }, 100);
+                  }}
                 >
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   Форма обратной связи
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/support#contacts"
-                  className="text-body text-gray-400 hover:text-white transition-all duration-300 flex items-center group"
-                >
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                  Контакты техподдержки
                 </Link>
               </li>
             </ul>
@@ -198,10 +221,23 @@ const Footer = () => {
         </div>
 
         {/* Нижняя часть футера */}
-        <div className="border-t border-gray-800 mt-16 pt-8 text-center">
-          <p className="text-small text-gray-500">
-            © {new Date().getFullYear()} Оптима. Все права защищены.
-          </p>
+        <div className="mt-12 pt-8 border-t border-gray-800">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-body text-gray-400">
+              © {new Date().getFullYear()} Оптима. Все права защищены.
+            </div>
+            <div className="text-body text-gray-400">
+              Created by{" "}
+              <a 
+                href="https://github.com/robot122-dev" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 transition-colors duration-200"
+              >
+                @Bychkov Vadim
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
