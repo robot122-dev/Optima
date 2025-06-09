@@ -59,11 +59,16 @@ module.exports = {
               '@babel/preset-env',
               ['@babel/preset-react', { runtime: 'automatic' }]
             ],
-            plugins: [
-              // Добавляем react-refresh только в development
-              isDevelopment && 'react-refresh/babel'
-            ].filter(Boolean)
+            plugins: isDevelopment ? ['react-refresh/babel'] : []
           }
+        }
+      },
+      {
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto',
+        resolve: {
+          fullySpecified: false
         }
       },
       {
@@ -71,8 +76,25 @@ module.exports = {
         use: [
           isDevelopment ? 'style-loader' : MiniCssExtractPlugin.loader,
           'css-loader',
-          'postcss-loader',
-          'sass-loader'
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  'postcss-preset-env',
+                  'tailwindcss',
+                  'autoprefixer'
+                ]
+              }
+            }
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              implementation: require('sass'),
+              api: 'modern'
+            }
+          }
         ]
       },
       {
@@ -113,16 +135,20 @@ module.exports = {
         }
       ]
     }),
-    // Добавляем ReactRefreshWebpackPlugin только в development
     isDevelopment && new ReactRefreshWebpackPlugin({
       overlay: false,
-      forceEnable: false
+      forceEnable: false,
+      exclude: [/node_modules/]
     })
   ].filter(Boolean),
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.mjs'],
     alias: {
       '@': path.resolve(__dirname, '../src')
+    },
+    fallback: {
+      "path": false,
+      "fs": false
     }
   },
   devServer: {
