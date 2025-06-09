@@ -1,63 +1,55 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { districts as coverageDistricts } from "../../../data/coverage";
+import { districts as coverageDistricts, coverageStatus, maintenanceStatus } from "../../../data/coverage";
 
 const YANDEX_API_KEY = "baff3e68-23e5-42ba-bee7-d943d4cf1512";
 const WIKIMAPIA_API_KEY =
-  "9AB612FA-D82FE314-11B50E87-BDD91E1E-716A0824-367B22FA-E6424708-5E9129E7";
+  "9AB612FA-370A18B1-8830FF44-7EA2209C-113CC06A-743F5436-8B83E8D2-ED1CB5B3";
 const STORAGE_KEY = "district_polygons";
 
 // Стили для полигонов
 const POLYGON_STYLES = {
-  default: {
-    fillColor: "#3b82f655", // Синий с прозрачностью
-    strokeColor: "#2563eb",
-    strokeWidth: 2,
-    fillOpacity: 0.4,
-  },
-  selected: {
-    fillColor: "#2563eb99", // Более насыщенный синий с прозрачностью
-    strokeColor: "#1d4ed8",
-    strokeWidth: 3,
-    fillOpacity: 0.7,
-  },
-  hover: {
-    fillColor: "#60a5fa99", // Светло-синий с прозрачностью
-    strokeColor: "#3b82f6",
-    strokeWidth: 2.5,
-    fillOpacity: 0.6,
-  },
-  // Стили по статусу работ
+  // Базовые стили по статусу
   status: {
     none: {
-      // Зеленый
-      fillColor: "#10B98155", // green-500 с прозрачностью
-      strokeColor: "#059669", // green-600
+      fillColor: "#10B98155", // Зеленый с прозрачностью
+      strokeColor: "#059669",
       strokeWidth: 2,
       fillOpacity: 0.4,
     },
     planned: {
-      // Желтый
-      fillColor: "#F59E0B55", // yellow-500 с прозрачностью
-      strokeColor: "#D97706", // yellow-600
+      fillColor: "#F59E0B55", // Желтый с прозрачностью
+      strokeColor: "#D97706",
       strokeWidth: 2,
       fillOpacity: 0.4,
     },
     emergency: {
-      // Красный
-      fillColor: "#EF444455", // red-500 с прозрачностью
-      strokeColor: "#DC2626", // red-600
+      fillColor: "#EF444455", // Красный с прозрачностью
+      strokeColor: "#DC2626",
+      strokeWidth: 2,
+      fillOpacity: 0.4,
+    },
+    default: {
+      fillColor: "#3B82F655", // Синий с прозрачностью
+      strokeColor: "#2563EB",
       strokeWidth: 2,
       fillOpacity: 0.4,
     },
   },
-};
-
-// Функция для определения стиля полигона по статусу работ
-const getPolygonStyleByStatus = (district) => {
-  const status = district.maintenance;
-  // Используем стили из status, если статус определен, иначе default
-  const baseStyle = POLYGON_STYLES.status[status] || POLYGON_STYLES.default;
-  return baseStyle;
+  // Стили для состояний
+  states: {
+    selected: {
+      fillColor: "#2563EB99", // Насыщенный синий
+      strokeColor: "#1D4ED8",
+      strokeWidth: 3,
+      fillOpacity: 0.7,
+    },
+    hover: {
+      fillColor: "#60A5FA99", // Светло-синий
+      strokeColor: "#3B82F6",
+      strokeWidth: 2.5,
+      fillOpacity: 0.6,
+    },
+  },
 };
 
 function YandexMap({ selectedDistrict = "", onSelectDistrict = () => {} }) {
@@ -65,6 +57,215 @@ function YandexMap({ selectedDistrict = "", onSelectDistrict = () => {} }) {
   const [polygons, setPolygons] = useState({});
   const [error, setError] = useState(null);
   const [hoveredDistrict, setHoveredDistrict] = useState(null);
+
+  // Функция для получения стиля полигона по статусу
+  const getPolygonStyleByStatus = useCallback((district) => {
+    const status = district.maintenance || "none";
+    return POLYGON_STYLES.status[status] || POLYGON_STYLES.status.default;
+  }, []);
+
+  // Функция для создания содержимого балуна
+  const createBalloonContent = useCallback((district) => {
+    const status = coverageStatus[district.status];
+    const maintenance = maintenanceStatus[district.maintenance];
+
+    return `
+      <div class="p-4 max-w-sm">
+        <h3 class="text-lg font-semibold mb-2">${district.name}</h3>
+        <div class="space-y-2">
+          <div class="flex items-center">
+            <span class="w-24 text-gray-600">Покрытие:</span>
+            <span class="font-medium">${district.coverage}</span>
+          </div>
+          <div class="flex items-center">
+            <span class="w-24 text-gray-600">Макс. скорость:</span>
+            <span class="font-medium">${district.maxSpeed}</span>
+          </div>
+          <div class="flex items-center">
+            <span class="w-24 text-gray-600">Технология:</span>
+            <span class="font-medium">${district.technology}</span>
+          </div>
+          <div class="flex items-center">
+            <span class="w-24 text-gray-600">Статус:</span>
+            <span class="font-medium" style="color: ${status.color}">${status.label}</span>
+          </div>
+          ${district.maintenance !== 'none' ? `
+            <div class="flex items-center">
+              <span class="w-24 text-gray-600">Работы:</span>
+              <span class="font-medium" style="color: ${maintenance.color}">${maintenance.label}</span>
+            </div>
+          ` : ''}
+          <div class="mt-3 text-sm text-gray-600">
+            ${district.description}
+          </div>
+          <div class="mt-4">
+            <button 
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition-colors"
+              onclick="window.dispatchEvent(new CustomEvent('connect-district', { detail: '${district.name}' }))"
+            >
+              Подключить
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }, []);
+
+  // Функция для сохранения полигонов в localStorage
+  const savePolygonsToStorage = useCallback((polygonData) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(polygonData));
+    } catch (err) {
+      console.error("Ошибка при сохранении полигонов:", err);
+    }
+  }, []);
+
+  // Функция для загрузки полигонов из localStorage
+  const loadPolygonsFromStorage = useCallback(() => {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (data) {
+        return JSON.parse(data);
+      }
+      return null;
+    } catch (err) {
+      return null;
+    }
+  }, []);
+
+  // Функция для загрузки полигонов с API
+  const loadPolygonsFromAPI = useCallback(async () => {
+    const polygonsData = {};
+
+    for (const district of coverageDistricts) {
+      try {
+        const apiUrl = `http://api.wikimapia.org/?function=place.getbyid&key=${WIKIMAPIA_API_KEY}&id=${district.wikimapiaId}&format=json`;
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          continue;
+        }
+
+        const data = await response.json();
+
+        if (!data?.polygon?.length) {
+          continue;
+        }
+
+        const coordinates = data.polygon.map(point => [
+          parseFloat(point.x),
+          parseFloat(point.y)
+        ]);
+
+        polygonsData[district.name] = { coordinates };
+      } catch (error) {
+        continue;
+      }
+    }
+
+    if (Object.keys(polygonsData).length > 0) {
+      savePolygonsToStorage(polygonsData);
+    }
+
+    return polygonsData;
+  }, [savePolygonsToStorage]);
+
+  // Функция для очистки localStorage
+  const clearPolygonsStorage = useCallback(() => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (err) {
+      console.error("Ошибка при удалении полигонов из localStorage:", err);
+    }
+  }, []);
+
+  // Инициализация карты и загрузка данных
+  const initMap = useCallback(async () => {
+    if (!mapRef.current || window.mapInstance) return;
+
+    window.mapInstance = new window.ymaps.Map(mapRef.current, {
+      center: [44.0029, 56.3266],
+      zoom: 10,
+      controls: ["zoomControl", "fullscreenControl"],
+    });
+
+    const newPolygons = {};
+    
+    let polygonsData = loadPolygonsFromStorage();
+    
+    if (!polygonsData || Object.keys(polygonsData).length === 0) {
+      polygonsData = await loadPolygonsFromAPI();
+    }
+
+    // Добавляем обработчик события подключения района
+    window.addEventListener('connect-district', (event) => {
+      onSelectDistrict(event.detail);
+    });
+
+    // Создаем полигоны на карте
+    for (const district of coverageDistricts) {
+      const polygonData = polygonsData[district.name];
+      if (!polygonData?.coordinates?.length) {
+        continue;
+      }
+
+      try {
+        const baseStyle = getPolygonStyleByStatus(district);
+        const balloonContent = createBalloonContent(district);
+
+        const polygon = new window.ymaps.GeoObject(
+          {
+            geometry: {
+              type: "Polygon",
+              coordinates: [polygonData.coordinates],
+            },
+            properties: {
+              name: district.name,
+              hintContent: district.name,
+              balloonContent: balloonContent,
+              districtId: district.id,
+              originalStyle: baseStyle,
+            },
+          },
+          {
+            ...baseStyle,
+            balloonCloseButton: true,
+            balloonAutoPan: true,
+            balloonPanelMaxMapArea: 0,
+            balloonMaxWidth: 300,
+            balloonOffset: [10, 10],
+          }
+        );
+
+        // Добавляем обработчики событий
+        polygon.events.add("click", (e) => {
+          e.get('target').balloon.open();
+          onSelectDistrict(district.name);
+        });
+
+        polygon.events.add("mouseenter", () => {
+          setHoveredDistrict(district.name);
+          if (selectedDistrict !== district.name) {
+            polygon.options.set(POLYGON_STYLES.states.hover);
+          }
+        });
+
+        polygon.events.add("mouseleave", () => {
+          setHoveredDistrict(null);
+          if (selectedDistrict !== district.name) {
+            polygon.options.set(polygon.properties.get("originalStyle"));
+          }
+        });
+
+        window.mapInstance.geoObjects.add(polygon);
+        newPolygons[district.name] = polygon;
+      } catch (error) {
+        setError(`Ошибка создания полигона для ${district.name}`);
+      }
+    }
+
+    setPolygons(newPolygons);
+  }, [getPolygonStyleByStatus, createBalloonContent, selectedDistrict, onSelectDistrict, loadPolygonsFromStorage, loadPolygonsFromAPI]);
 
   // Подключаем Яндекс.Карты
   useEffect(() => {
@@ -86,307 +287,49 @@ function YandexMap({ selectedDistrict = "", onSelectDistrict = () => {} }) {
         window.mapInstance = null;
       }
     };
-  }, []);
-
-  // Функция для задержки
-  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-  // Используем прокси для обхода CORS, если необходимо. Убедитесь, что у вас есть рабочий CORS Anywhere инстанс.
-  const PROXY_URL = "https://cors-anywhere.herokuapp.com/";
-
-  // Функция для сохранения полигонов в localStorage
-  function savePolygonsToStorage(polygonData) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(polygonData));
-    } catch (err) {
-      console.error("Ошибка при сохранении полигонов:", err);
-    }
-  }
-
-  // Функция для загрузки полигонов из localStorage
-  function loadPolygonsFromStorage() {
-    try {
-      const data = localStorage.getItem(STORAGE_KEY);
-      if (data) {
-        return JSON.parse(data);
-      }
-      return null;
-    } catch (err) {
-      console.error("Ошибка при загрузке полигонов:", err);
-      return null;
-    }
-  }
-
-  // Создание HTML для балуна
-  function createBalloonContent(district) {
-    return `
-      <div class="p-4 max-w-sm">
-        <h3 class="font-bold text-lg mb-3 text-primary">${district.name}</h3>
-        <div class="space-y-2">
-          <div class="flex items-center">
-            <span><b>Покрытие:</b> ${district.coverage}</span>
-          </div>
-          <div class="flex items-center">
-            <span><b>Скорость:</b> ${district.maxSpeed}</span>
-          </div>
-          <div class="flex items-center">
-            <span><b>Технология:</b> ${district.technology}</span>
-          </div>
-        </div>
-        <p class="text-sm text-gray-600 mt-3">${district.description}</p>
-      </div>
-    `;
-  }
-
-  // Инициализация карты и загрузка данных
-  const initMap = useCallback(async () => {
-    if (!mapRef.current) return;
-
-    if (window.mapInstance) return;
-
-    window.mapInstance = new window.ymaps.Map(mapRef.current, {
-      center: [44.0029, 56.3266],
-      zoom: 10,
-      controls: ["zoomControl", "fullscreenControl"],
-    });
-
-    const newPolygons = {};
-    const districtList = [];
-
-    // Пробуем загрузить полигоны из localStorage
-    const storedPolygons = loadPolygonsFromStorage();
-    let needToFetch =
-      !storedPolygons ||
-      Object.keys(storedPolygons).length !== coverageDistricts.length;
-
-    if (storedPolygons && !needToFetch) {
-      // Используем сохраненные полигоны
-      for (const district of coverageDistricts) {
-        const polygonData = storedPolygons[district.name];
-        if (
-          polygonData &&
-          polygonData.coordinates &&
-          polygonData.coordinates.length > 0
-        ) {
-          try {
-            const baseStyle = getPolygonStyleByStatus(district);
-
-            const polygon = new window.ymaps.GeoObject(
-              {
-                geometry: {
-                  type: "Polygon",
-                  coordinates: [polygonData.coordinates],
-                },
-                properties: {
-                  name: district.name,
-                  hintContent: district.name,
-                  balloonContent: createBalloonContent(district),
-                  districtId: district.id,
-                  originalFillColor: baseStyle.fillColor,
-                  originalStrokeColor: baseStyle.strokeColor,
-                  originalStrokeWidth: baseStyle.strokeWidth,
-                  originalFillOpacity: baseStyle.fillOpacity,
-                },
-              },
-              {
-                ...baseStyle,
-                balloonCloseButton: true,
-                balloonAutoPan: true,
-              }
-            );
-
-            polygon.events.add("click", () => {
-              onSelectDistrict(district.name);
-            });
-
-            polygon.events.add("mouseenter", () => {
-              setHoveredDistrict(district.name);
-              if (selectedDistrict !== district.name) {
-                polygon.options.set(POLYGON_STYLES.hover);
-              }
-            });
-
-            polygon.events.add("mouseleave", () => {
-              setHoveredDistrict(null);
-              if (selectedDistrict !== district.name) {
-                polygon.options.set(getPolygonStyleByStatus(district));
-              }
-            });
-
-            window.mapInstance.geoObjects.add(polygon);
-            newPolygons[district.name] = polygon;
-            districtList.push(district);
-          } catch (e) {
-            console.error("Ошибка при создании полигона", e);
-          }
-        }
-      }
-    } else {
-      setError(null);
-
-      for (const district of coverageDistricts) {
-        let polygonData = null;
-        let attempts = 0;
-        const maxAttempts = 3;
-
-        while (attempts < maxAttempts) {
-          try {
-            const response = await fetch(
-              `${PROXY_URL}http://api.wikimapia.org/?function=place.getbyid&key=${WIKIMAPIA_API_KEY}&id=${district.wikimapiaId}&format=json`
-            );
-
-            if (!response.ok) {
-              throw new Error(`Ошибка загрузки данных для ${district.name}`);
-            }
-
-            const data = await response.json();
-
-            if (
-              data &&
-              data.polygon &&
-              data.polygon.length > 0 &&
-              data.polygon[0].x !== 0 &&
-              data.polygon[0].y !== 0
-            ) {
-              // Преобразование координат Wikimapia в формат Яндекс.Карт (longlat)
-              polygonData = {
-                coordinates: data.polygon.map((point) => [
-                  parseFloat(point.y),
-                  parseFloat(point.x),
-                ]),
-                name: district.name,
-              };
-              break; // Успешно загружено, выходим из цикла
-            } else {
-              throw new Error(
-                `Полигон для ${district.name} отсутствует или недействителен`
-              );
-            }
-          } catch (e) {
-            console.error("Ошибка при загрузке данных полигона", e);
-            attempts++;
-            if (attempts === maxAttempts) {
-              console.error(
-                `Не удалось загрузить данные для района ${district.name}`
-              );
-            }
-          }
-        }
-
-        if (polygonData) {
-          // Определяем базовый стиль по статусу работ
-          const baseStyle = getPolygonStyleByStatus(district);
-
-          const polygon = new window.ymaps.GeoObject(
-            {
-              geometry: {
-                type: "Polygon",
-                coordinates: [polygonData.coordinates],
-              },
-              properties: {
-                name: district.name,
-                hintContent: district.name,
-                balloonContent: createBalloonContent(district),
-                districtId: district.id,
-                originalFillColor: baseStyle.fillColor,
-                originalStrokeColor: baseStyle.strokeColor,
-                originalStrokeWidth: baseStyle.strokeWidth,
-                originalFillOpacity: baseStyle.fillOpacity,
-              },
-            },
-            {
-              ...baseStyle,
-              balloonCloseButton: true,
-              balloonAutoPan: true,
-            }
-          );
-
-          // Добавляем обработчики событий
-          polygon.events.add("click", () => {
-            console.log("Polygon clicked:", district.name);
-            // Передаем ID района при выборе
-            onSelectDistrict(district.name);
-          });
-
-          polygon.events.add("mouseenter", () => {
-            setHoveredDistrict(district.name);
-            if (selectedDistrict !== district.name) {
-              polygon.options.set(POLYGON_STYLES.hover);
-            }
-          });
-
-          polygon.events.add("mouseleave", () => {
-            setHoveredDistrict(null);
-            if (selectedDistrict === selectedDistrict) {
-              // Исправлено: сравниваем с selectedDistrict из пропсов
-
-              polygon.options.set(POLYGON_STYLES.selected);
-            } else {
-              polygon.options.set({
-                fillColor: polygon.properties.get("originalFillColor"),
-                strokeColor: polygon.properties.get("originalStrokeColor"),
-                strokeWidth: polygon.properties.get("originalStrokeWidth"),
-                fillOpacity: polygon.properties.get("originalFillOpacity"),
-              });
-            }
-          });
-
-          window.mapInstance.geoObjects.add(polygon);
-          newPolygons[district.name] = polygon;
-          districtList.push(district);
-        }
-      }
-      setPolygons(newPolygons);
-      savePolygonsToStorage(newPolygons);
-    }
-  }, [selectedDistrict, onSelectDistrict]);
-
-  useEffect(() => {
-    if (window.ymaps) {
-      initMap();
-    }
   }, [initMap]);
 
-  // useEffect для подсветки выбранного района
+  // Эффект для обновления стилей при выборе района
   useEffect(() => {
-    if (window.mapInstance && polygons) {
-      window.mapInstance.geoObjects.each((geoObject) => {
-        // Сбрасываем стиль для всех полигонов на их оригинальный (по статусу)
+    if (!window.mapInstance || !polygons) return;
 
-        geoObject.options.set({
-          fillColor: geoObject.properties.get("originalFillColor"),
-          strokeColor: geoObject.properties.get("originalStrokeColor"),
-          strokeWidth: geoObject.properties.get("originalStrokeWidth"),
-          fillOpacity: geoObject.properties.get("originalFillOpacity"),
-        });
-      });
+    window.mapInstance.geoObjects.each(geoObject => {
+      const name = geoObject.properties.get("name");
+      const originalStyle = geoObject.properties.get("originalStyle");
 
-      if (selectedDistrict) {
-        // Ищем выбранный геообъект по имени района в локальном состоянии polygons
-        const selectedGeoObject = polygons[selectedDistrict];
-
-        if (selectedGeoObject) {
-          // Применяем стиль selected к выбранному полигону
-
-          selectedGeoObject.options.set(POLYGON_STYLES.selected);
-          // Центрируем карту на выбранном полигоне
-          try {
-            const bounds = selectedGeoObject.getBounds();
-            if (bounds) {
-              window.mapInstance.setBounds(bounds, {
-                checkZoomRange: true,
-                duration: 300,
-              });
-            }
-          } catch (e) {
-            console.error("Ошибка при центрировании карты:", e);
+      if (name === selectedDistrict) {
+        geoObject.options.set(POLYGON_STYLES.states.selected);
+        try {
+          const bounds = geoObject.geometry.getBounds();
+          if (bounds) {
+            window.mapInstance.setBounds(bounds, {
+              checkZoomRange: true,
+              duration: 300,
+            });
           }
+        } catch (error) {
+          console.error("Ошибка при центрировании карты:", error);
         }
+      } else if (name === hoveredDistrict) {
+        geoObject.options.set(POLYGON_STYLES.states.hover);
+      } else {
+        geoObject.options.set(originalStyle);
       }
-    }
-  }, [selectedDistrict, polygons]); // Зависимость от selectedDistrict и polygons
+    });
+  }, [selectedDistrict, hoveredDistrict, polygons]);
 
-  return <div ref={mapRef} style={{ width: "100%", height: "600px" }} />;
+  return (
+    <div className="relative w-full h-[600px] rounded-lg overflow-hidden shadow-lg">
+      {error && (
+        <div className="absolute top-4 left-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+        </div>
+      )}
+      <div ref={mapRef} className="w-full h-full" />
+    </div>
+  );
 }
 
 export default YandexMap;
+
+
