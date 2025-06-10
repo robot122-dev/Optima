@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import DistrictList from "../../components/coverage/DistrictList/DistrictList.jsx"; // Use original DistrictList
-// import DistrictListBase from '../../components/general/DistrictListBase';
+import DistrictList from "../../components/coverage/DistrictList/DistrictList.jsx";
 import YandexMap from "../../components/coverage/YandexMap/YandexMap.jsx";
 import { FiList, FiX } from "react-icons/fi";
 import SeoHead from "../../components/general/SeoHead/SeoHead.jsx";
-// import { districts as coverageDistricts } from '../../../data/coverage'; // No longer need to import districts here
 
 const Coverage = () => {
   // Revert state to store selected district name

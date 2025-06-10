@@ -139,7 +139,7 @@ function YandexMap({ selectedDistrict = "", onSelectDistrict = () => {} }) {
 
     for (const district of coverageDistricts) {
       try {
-        const apiUrl = `http://api.wikimapia.org/?function=place.getbyid&key=${WIKIMAPIA_API_KEY}&id=${district.wikimapiaId}&format=json`;
+        const apiUrl = `https://api.wikimapia.org/?function=place.getbyid&key=${WIKIMAPIA_API_KEY}&id=${district.wikimapiaId}&format=json`;
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
