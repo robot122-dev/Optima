@@ -66,7 +66,7 @@ src/
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/your-username/internet-provider.git
+git clone https://github.com/robot122-dev/internet-provider.git
 cd internet-provider
 ```
 
