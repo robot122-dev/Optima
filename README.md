@@ -174,7 +174,7 @@ npm run deploy
 
 ## 📝 Лицензия
 
-MIT © Вадим
+MIT © Bychkov V.A.
 
 ---
 
