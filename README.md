@@ -1,4 +1,4 @@
-# 🌐 Internet Provider - Современный сайт провайдера
+# 🌐 Оптима - Современный сайт провайдера
 
 <div align="center">
   <img src="public/images/logo.svg" alt="Internet Provider Logo" width="200"/>
