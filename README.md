@@ -66,8 +66,8 @@ src/
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/robot122-dev/internet-provider.git
-cd internet-provider
+git clone https://github.com/robot122-dev/Optima.git
+cd Optima
 ```
 
 2. Установите зависимости:
